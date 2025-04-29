@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { GestureIcon } from './GestureIcon';
 import { Badge } from '@/components/ui/badge';
 import type { SimulationResult, SensorReading } from '@/types/simulation';
-import { Skeleton } from '@/components/ui/skeleton'; // Import Skeleton
+import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '../ui/separator';
-import { Cpu, MemoryStick } from 'lucide-react'; // Import icons for metrics
+import { Cpu, MemoryStick, Box, Code2, Sparkles } from 'lucide-react'; // Added icons
 
 interface SimulationOutputProps {
   inputData: SensorReading;
@@ -17,14 +17,13 @@ interface SimulationOutputProps {
   isLoading: boolean;
 }
 
-// Helper to format numbers consistently
 const formatAxis = (value: number | undefined): string => {
   if (value === undefined || value === null) {
-    return '0.000';
+    return 'N/A'; // Handle potential null/undefined
   }
-  return value.toFixed(3);
+  // Add sign explicitly for clarity
+  return `${value >= 0 ? '+' : ''}${value.toFixed(3)}`;
 };
-
 
 export const SimulationOutput: React.FC<SimulationOutputProps> = ({
   inputData,
@@ -34,67 +33,66 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
 }) => {
 
   const renderInputData = () => (
-    <div className="grid grid-cols-3 gap-4 text-center p-4 bg-secondary/50 rounded-md">
-      <div>
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">X-Axis</p>
-        <p className="font-mono text-xl font-medium">{formatAxis(inputData?.accel_x)} g</p>
-      </div>
-      <div>
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Y-Axis</p>
-        <p className="font-mono text-xl font-medium">{formatAxis(inputData?.accel_y)} g</p>
-      </div>
-      <div>
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Z-Axis</p>
-        <p className="font-mono text-xl font-medium">{formatAxis(inputData?.accel_z)} g</p>
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center p-5 bg-secondary/70 rounded-lg shadow-inner backdrop-blur-sm border border-border/30">
+      {/* Added outer border and shadow */}
+      {(['x', 'y', 'z'] as const).map((axis) => (
+          <div key={axis} className="p-3 bg-background/50 rounded-md border border-border/20 shadow-sm">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{axis.toUpperCase()}-Axis</p>
+            <p className={`font-mono text-2xl font-semibold ${inputData?.[`accel_${axis}`] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+              {formatAxis(inputData?.[`accel_${axis}`])} g
+            </p>
+          </div>
+      ))}
     </div>
   );
 
   const renderLoadingSkeletons = () => (
-     <div className="space-y-6">
-        {/* Input Data Skeleton */}
-        <Card className="shadow-sm transition-shadow hover:shadow-md">
+     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start animate-pulse"> {/* Animate pulse for loading */}
+        {/* Left Column Skeletons */}
+        <div className="space-y-8">
+            <Card className="shadow-md bg-card/80 backdrop-blur-sm">
+                <CardHeader>
+                     <Skeleton className="h-7 w-3/5 mb-2" />
+                     <Skeleton className="h-4 w-4/5" />
+                </CardHeader>
+                <CardContent>
+                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 bg-secondary/70 rounded-lg">
+                         {[...Array(3)].map((_, i) => (
+                            <div key={i} className="p-3 bg-background/50 rounded-md">
+                                <Skeleton className="h-3 w-1/3 mx-auto mb-2" />
+                                <Skeleton className="h-7 w-3/4 mx-auto" />
+                            </div>
+                         ))}
+                     </div>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-md bg-card/80 backdrop-blur-sm">
+                <CardHeader>
+                     <Skeleton className="h-7 w-2/5 mb-2" />
+                     <Skeleton className="h-4 w-3/4" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-60 w-full rounded-md bg-muted" />
+                </CardContent>
+             </Card>
+        </div>
+
+        {/* Right Column Skeleton */}
+        <Card className="bg-card/80 backdrop-blur-sm shadow-lg sticky top-8">
             <CardHeader>
-                 <Skeleton className="h-6 w-1/2" />
-                 <Skeleton className="h-4 w-3/4 mt-1" />
+                <Skeleton className="h-7 w-1/2 mb-2" />
+                <Skeleton className="h-4 w-2/3" />
             </CardHeader>
-            <CardContent>
-                 <div className="grid grid-cols-3 gap-4 text-center p-4 bg-secondary/50 rounded-md">
-                     {[...Array(3)].map((_, i) => (
-                        <div key={i}>
-                            <Skeleton className="h-3 w-1/2 mx-auto mb-2" />
-                            <Skeleton className="h-6 w-3/4 mx-auto" />
-                        </div>
-                     ))}
+            <CardContent className="flex flex-col items-center justify-center min-h-[300px] p-6 space-y-4">
+                 <Skeleton className="h-24 w-24 rounded-full bg-secondary" />
+                 <Skeleton className="h-5 w-1/4" />
+                 <Skeleton className="h-10 w-1/2" />
+                 <Skeleton className="h-px w-3/4 bg-border" />
+                 <div className="flex gap-4">
+                    <Skeleton className="h-8 w-24 rounded-full" />
+                    <Skeleton className="h-8 w-28 rounded-full" />
                  </div>
-            </CardContent>
-        </Card>
-
-        {/* Assembly Code Skeleton */}
-         <Card className="shadow-sm transition-shadow hover:shadow-md">
-            <CardHeader>
-                 <Skeleton className="h-6 w-3/5" />
-                 <Skeleton className="h-4 w-5/6 mt-1" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-40 w-full rounded-md" />
-            </CardContent>
-         </Card>
-
-        {/* Simulation Result Skeleton */}
-        <Card className="bg-card shadow-sm transition-shadow hover:shadow-md">
-            <CardHeader>
-                <Skeleton className="h-6 w-1/3" />
-                <Skeleton className="h-4 w-1/2 mt-1" />
-            </CardHeader>
-            <CardContent>
-                 <div className="flex items-center justify-center py-10">
-                     <svg className="animate-spin h-10 w-10 text-primary mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                     </svg>
-                    <p className="text-lg text-muted-foreground">Processing Simulation...</p>
-                </div>
             </CardContent>
         </Card>
     </div>
@@ -106,15 +104,16 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start"> {/* Use grid for layout */}
-
-       {/* Left Column: Input & Assembly */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      {/* Left Column: Input & Assembly */}
       <div className="space-y-8">
           {/* Input Data Section */}
-          <Card className="shadow-sm transition-shadow hover:shadow-md">
+          <Card className="shadow-md transition-shadow hover:shadow-lg bg-card/80 backdrop-blur-sm border border-border/50">
             <CardHeader>
-              <CardTitle>Simulated Sensor Input</CardTitle>
-              <CardDescription>Generated 3-axis accelerometer readings.</CardDescription>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Box className="w-5 h-5 text-primary/80"/> Simulated Sensor Input
+              </CardTitle>
+              <CardDescription>Generated 3-axis accelerometer data.</CardDescription>
             </CardHeader>
             <CardContent>
               {renderInputData()}
@@ -122,60 +121,71 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
           </Card>
 
           {/* Assembly Code Section */}
-           <Card className="shadow-sm transition-shadow hover:shadow-md">
+           <Card className="shadow-md transition-shadow hover:shadow-lg bg-card/80 backdrop-blur-sm border border-border/50">
             <CardHeader>
-              <CardTitle>ARM Assembly Logic (Conceptual)</CardTitle>
-              <CardDescription>Simplified inference code representation.</CardDescription>
+              <CardTitle className="text-xl flex items-center gap-2">
+                 <Code2 className="w-5 h-5 text-primary/80"/> ARM Assembly Logic (Conceptual)
+              </CardTitle>
+              <CardDescription>Representation of the low-level inference code.</CardDescription>
             </CardHeader>
             <CardContent>
-              <pre className="bg-muted p-4 rounded-md overflow-x-auto text-xs max-h-96"> {/* Constrain height */}
+              <pre className="bg-muted/90 p-4 rounded-lg overflow-x-auto text-xs max-h-96 shadow-inner border border-border/30"> {/* Added border */}
                 <code>{assemblyCode}</code>
               </pre>
             </CardContent>
           </Card>
       </div>
 
-
       {/* Right Column: Simulation Result */}
-       <Card className="bg-gradient-to-br from-secondary to-background shadow-md transition-shadow hover:shadow-lg sticky top-8"> {/* Added gradient and sticky */}
+       <Card className="bg-gradient-to-br from-card/90 to-secondary/80 backdrop-blur-sm shadow-xl transition-shadow hover:shadow-2xl sticky top-8 border border-border/50"> {/* Enhanced gradient, shadow, sticky */}
         <CardHeader>
-          <CardTitle>Simulation Results</CardTitle>
-          <CardDescription>Output from the virtual execution.</CardDescription>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-accent" /> Simulation Results
+          </CardTitle>
+          <CardDescription>Output from the virtual microcontroller execution.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center min-h-[200px] p-6">
+        <CardContent className="flex flex-col items-center justify-center min-h-[300px] p-8 space-y-6"> {/* Increased padding and spacing */}
           {simulationResult ? (
-            <div className="flex flex-col items-center text-center space-y-5 w-full"> {/* Increased spacing */}
-              <div className="flex-shrink-0 p-5 bg-background rounded-full shadow-lg border border-accent/30"> {/* Enhanced styling */}
-                 <GestureIcon gesture={simulationResult.recognizedGesture} className="w-20 h-20 text-accent" /> {/* Larger icon */}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground uppercase tracking-wider">Recognized Gesture</p>
-                <p className="text-4xl font-bold capitalize text-accent mt-1"> {/* Larger text */}
-                  {simulationResult.recognizedGesture}
-                </p>
+            <div className="flex flex-col items-center text-center space-y-6 w-full">
+              {/* Gesture Icon and Label */}
+              <div className="flex flex-col items-center space-y-3">
+                  <div className="p-6 bg-background rounded-full shadow-lg border-2 border-accent/50 transform hover:scale-105 transition-transform">
+                     <GestureIcon gesture={simulationResult.recognizedGesture} className="w-24 h-24 text-accent" /> {/* Even larger icon */}
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground uppercase tracking-wider font-medium">Recognized Gesture</p>
+                    <p className="text-5xl font-bold capitalize text-accent mt-1 animate-fade-in"> {/* Larger text, animation */}
+                      {simulationResult.recognizedGesture}
+                    </p>
+                  </div>
               </div>
 
-              <Separator className="w-3/4 my-4" /> {/* Added separator */}
+              <Separator className="w-3/4 my-5 bg-border/60" /> {/* Thicker separator */}
 
-              <div className="flex flex-wrap justify-center gap-4 pt-2">
+              {/* Metrics */}
+              <div className="flex flex-wrap justify-center items-center gap-5 pt-2">
                    {simulationResult.executionCycles !== undefined && (
-                     <Badge variant="outline" className="text-sm px-3 py-1 shadow-sm border-primary/30"> {/* More padding, subtle border */}
-                       <Cpu className="w-4 h-4 mr-1.5 text-primary/80" />
-                       Cycles: ~{simulationResult.executionCycles.toLocaleString()} {/* Format number */}
+                     <Badge variant="secondary" className="text-base px-4 py-2 shadow-md border border-border/30 transform hover:-translate-y-1 transition-transform"> {/* Larger badge */}
+                       <Cpu className="w-5 h-5 mr-2 text-primary/90" />
+                       <span className="font-semibold">Cycles:</span> &nbsp; ~{simulationResult.executionCycles.toLocaleString()}
                      </Badge>
                    )}
                    {simulationResult.memoryUsage !== undefined && (
-                      <Badge variant="outline" className="text-sm px-3 py-1 shadow-sm border-primary/30">
-                         <MemoryStick className="w-4 h-4 mr-1.5 text-primary/80" />
-                        Memory: ~{simulationResult.memoryUsage} Bytes
+                      <Badge variant="secondary" className="text-base px-4 py-2 shadow-md border border-border/30 transform hover:-translate-y-1 transition-transform">
+                         <MemoryStick className="w-5 h-5 mr-2 text-primary/90" />
+                        <span className="font-semibold">Memory:</span> &nbsp; ~{simulationResult.memoryUsage} Bytes
                       </Badge>
                    )}
                 </div>
             </div>
           ) : (
-             <p className="text-center text-muted-foreground py-10 text-lg">
-               Click "Run Simulation" to generate data and see results.
-             </p>
+             <div className="text-center text-muted-foreground py-16 space-y-3">
+                <Cpu className="w-12 h-12 mx-auto text-primary/50 animate-bounce" />
+                <p className="text-xl">
+                    Click <span className="font-semibold text-accent">"Run Simulation"</span> to start.
+                </p>
+                <p className="text-sm">Generate data and see the inference results here.</p>
+             </div>
           )}
         </CardContent>
       </Card>
@@ -183,3 +193,20 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
     </div>
   );
 };
+
+// Add a simple fade-in animation
+const styles = `
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+`;
+if (typeof document !== 'undefined') {
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
+}

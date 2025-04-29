@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'GestureSim - Simulated Edge AI',
-  description: 'ARM Assembly Gesture Recognition Simulation',
+  title: 'GestureSim | Edge AI Simulation', // Updated Title
+  description: 'Simulate and visualize ARM Assembly-based gesture recognition on virtual sensor data.', // Updated Description
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}> {/* Ensured background/text applied */}
         {children}
         <Toaster /> {/* Add Toaster component here */}
       </body>

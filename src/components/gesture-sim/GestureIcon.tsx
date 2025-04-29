@@ -6,9 +6,9 @@ interface GestureIconProps extends React.SVGProps<SVGSVGElement> {
   gesture: Gesture;
 }
 
-const strokeWidth = "2.2"; // Slightly thicker stroke
+const strokeWidth = "2.5"; // Made slightly thicker
 
-// Basic SVG arrow icons with adjusted stroke width
+// SVG icons with consistent styling
 const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
   up: (props) => (
     <svg
@@ -77,14 +77,17 @@ const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
       strokeLinejoin="round"
       {...props}
     >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" x2="12" y1="8" y2="12" />
-      <line x1="12" x2="12.01" y1="16" y2="16" />
+      {/* Question Mark Icon */}
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+      <path d="M12 17.01h.01" />
+       <circle cx="12" cy="12" r="10" />
     </svg>
   ),
 };
 
 export const GestureIcon: React.FC<GestureIconProps> = ({ gesture, className = 'w-6 h-6', ...props }) => {
   const IconComponent = icons[gesture] || icons['unknown'];
-  return <IconComponent className={className} {...props} />;
+  // Ensure default classes are applied if className is provided
+  const finalClassName = `inline-block ${className}`;
+  return <IconComponent className={finalClassName} {...props} />;
 };

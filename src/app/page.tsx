@@ -5,7 +5,7 @@ import type React from 'react';
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { SimulationOutput } from '@/components/gesture-sim/SimulationOutput';
-import { Github, Play } from 'lucide-react';
+import { Github, Play, Activity, Cpu, MemoryStick } from 'lucide-react'; // Added Activity
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -18,46 +18,35 @@ import type { SimulationResult, SensorReading, Gesture } from '@/types/simulatio
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
-// --- Simulation Logic (Placeholder) ---
-
-// Simplified model logic: Check dominant axis and magnitude
+// --- Simulation Logic (Placeholder - Remains the same) ---
 function runSimulatedInference(data: SensorReading): SimulationResult {
   const { accel_x, accel_y, accel_z } = data;
-  const threshold = 0.6; // Threshold for clear gesture detection
-  const dominanceFactor = 1.5; // How much stronger the dominant axis needs to be
+  const threshold = 0.6;
+  const dominanceFactor = 1.5;
 
   const absX = Math.abs(accel_x);
   const absY = Math.abs(accel_y);
   const absZ = Math.abs(accel_z);
 
-  // Simulate some processing time and resource usage
-  const cycles = Math.floor(Math.random() * 1500) + 500; // Random cycles (500-2000)
-  const memory = Math.floor(Math.random() * 100) + 100;   // Random memory (100-200 bytes)
+  const cycles = Math.floor(Math.random() * 1500) + 500;
+  const memory = Math.floor(Math.random() * 100) + 100;
 
   let recognizedGesture: Gesture = 'unknown';
 
-  // Check Y-axis dominance for Up/Down
   if (absY > absX * dominanceFactor && absY > absZ * dominanceFactor && absY > threshold) {
     recognizedGesture = accel_y > 0 ? 'up' : 'down';
-  }
-  // Check X-axis dominance for Left/Right
-  else if (absX > absY * dominanceFactor && absX > absZ * dominanceFactor && absX > threshold) {
+  } else if (absX > absY * dominanceFactor && absX > absZ * dominanceFactor && absX > threshold) {
      recognizedGesture = accel_x > 0 ? 'right' : 'left';
-  }
-   // Basic check for potential noise/unknown (low magnitude or no clear dominance)
-  else if (absX < threshold * 0.5 && absY < threshold * 0.5 && absZ < threshold * 0.5) {
+  } else if (absX < threshold * 0.5 && absY < threshold * 0.5 && absZ < threshold * 0.5) {
      recognizedGesture = 'unknown';
   } else if (absX < threshold && absY < threshold && absZ < threshold) {
-      // Low magnitude, also potentially unknown
       recognizedGesture = 'unknown';
-  } // Default remains 'unknown' if no other condition is met
-
+  }
 
   return { recognizedGesture, executionCycles: cycles, memoryUsage: memory };
 }
 
-
-// Example ARM Assembly (Conceptual - Remains the same conceptual example)
+// Example ARM Assembly (Conceptual - Remains the same)
 const exampleAssemblyCode = `
 ; Simple Gesture Recognition Logic (Conceptual)
 ; Input: R0=X, R1=Y, R2=Z (scaled integers, e.g., float * 100)
@@ -133,57 +122,35 @@ EndCheck:
   BX LR             ; Return
 `;
 
-
-// Generate sensor data based on selected type
+// Generate sensor data based on selected type (Remains the same)
 type GestureGenerationType = 'random' | Gesture;
 
 function generateSensorData(type: GestureGenerationType): SensorReading {
-  let x = (Math.random() - 0.5) * 0.3; // Base noise
+  let x = (Math.random() - 0.5) * 0.3;
   let y = (Math.random() - 0.5) * 0.3;
   let z = (Math.random() - 0.5) * 0.3;
-  const magnitude = 0.8 + Math.random() * 0.5; // 0.8 to 1.3
+  const magnitude = 0.8 + Math.random() * 0.5;
 
   switch (type) {
     case 'up':
-      y = magnitude;
-      x *= 0.3; // Reduce non-dominant axes
-      z *= 0.3;
-      break;
+      y = magnitude; x *= 0.3; z *= 0.3; break;
     case 'down':
-      y = -magnitude;
-      x *= 0.3;
-      z *= 0.3;
-      break;
+      y = -magnitude; x *= 0.3; z *= 0.3; break;
     case 'left':
-      x = -magnitude;
-      y *= 0.3;
-      z *= 0.3;
-      break;
+      x = -magnitude; y *= 0.3; z *= 0.3; break;
     case 'right':
-      x = magnitude;
-      y *= 0.3;
-      z *= 0.3;
-      break;
-    case 'unknown': // Generate data likely to be classified as unknown
-      // Keep moderate noise on all axes, avoid clear dominance
-       x = (Math.random() - 0.5) * 0.4; // Slightly lower noise for unknown
+      x = magnitude; y *= 0.3; z *= 0.3; break;
+    case 'unknown':
+       x = (Math.random() - 0.5) * 0.4;
        y = (Math.random() - 0.5) * 0.4;
-       z = (Math.random() - 0.5) * 0.4;
-      break;
+       z = (Math.random() - 0.5) * 0.4; break;
     case 'random':
     default:
-      // Use existing random generation logic but ensure some variance
        const gestureType = Math.random();
-       if (gestureType < 0.2) { // More pronounced up
-           y = magnitude; x *= 0.4; z *= 0.4;
-        } else if (gestureType < 0.4) { // More pronounced down
-            y = -magnitude; x *= 0.4; z *= 0.4;
-        } else if (gestureType < 0.6) { // More pronounced right
-            x = magnitude; y *= 0.4; z *= 0.4;
-        } else if (gestureType < 0.8) { // More pronounced left
-            x = -magnitude; y *= 0.4; z *= 0.4;
-        }
-      // ~20% remain as less clear noise/unknown
+       if (gestureType < 0.2) { y = magnitude; x *= 0.4; z *= 0.4; }
+       else if (gestureType < 0.4) { y = -magnitude; x *= 0.4; z *= 0.4; }
+       else if (gestureType < 0.6) { x = magnitude; y *= 0.4; z *= 0.4; }
+       else if (gestureType < 0.8) { x = -magnitude; y *= 0.4; z *= 0.4; }
       break;
   }
 
@@ -194,8 +161,8 @@ function generateSensorData(type: GestureGenerationType): SensorReading {
   };
 }
 
-// Default static state for initial render, consistent between server and client
-const defaultSensorReading: SensorReading = { accel_x: 0, accel_y: 0, accel_z: 0 };
+// Use a non-random default state for initial render to avoid hydration mismatch
+const defaultSensorReading: SensorReading = { accel_x: 0.123, accel_y: -0.456, accel_z: 0.789 };
 
 export default function Home() {
   const [inputData, setInputData] = useState<SensorReading>(defaultSensorReading);
@@ -206,88 +173,95 @@ export default function Home() {
 
   const handleRunSimulation = useCallback(() => {
     setIsLoading(true);
-    setSimulationResult(null); // Clear previous result immediately
+    setSimulationResult(null);
 
-    // Generate new data based on the selected type *before* simulation
     const newData = generateSensorData(generationType);
-    setInputData(newData); // Update input data state *after* generation
+    setInputData(newData);
 
-    // Simulate asynchronous operation (e.g., calling the actual inference engine)
-    // Using setTimeout for demonstration
+    // Simulate async operation
     setTimeout(() => {
-      // Run inference with the *newly generated* data
       const result = runSimulatedInference(newData);
       setSimulationResult(result);
       setIsLoading(false);
-    }, 350); // Slightly longer delay for visual feedback
-  }, [generationType]); // Depend on generationType
+    }, 500); // Slightly increased delay
+  }, [generationType]);
 
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl"> {/* Increased max-width */}
-      <header className="mb-8 flex flex-col items-center text-center">
-        <h1 className="text-4xl font-bold text-primary mb-2">GestureSim</h1> {/* Larger heading */}
-        <p className="text-lg text-muted-foreground max-w-2xl">
-          Simulate Edge AI: Run gesture recognition logic written in ARM Assembly on virtual sensor data.
-        </p>
-         <a href="https://github.com/FirebaseExtended/studio-examples/tree/main/gesture-sim" target="_blank" rel="noopener noreferrer" className="inline-flex items-center mt-3 text-sm text-accent hover:underline">
-          <Github className="w-4 h-4 mr-1.5" /> View Source on GitHub
-        </a>
-      </header>
+     // Added subtle background pattern
+    <div className="relative min-h-screen bg-gradient-to-br from-background via-secondary/50 to-background">
+       {/* Decorative background elements */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-5 pattern-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cpath%20fill%3D%22%232c3e50%22%20fill-opacity%3D%220.1%22%20d%3D%22M0%200h20v20H0zM20%2020h20v20H20z%22%2F%3E%3C%2Fsvg%3E')]"></div>
 
-      <main className="space-y-8"> {/* Increased spacing */}
-         <Card className="shadow-md"> {/* Add shadow to card */}
-           <CardHeader>
-             <CardTitle>Simulation Control</CardTitle>
-             <CardDescription>Generate sensor data and run the simulated inference.</CardDescription>
-           </CardHeader>
-           <CardContent className="flex flex-col sm:flex-row items-center justify-center gap-6"> {/* Increased gap */}
-             {/* Data Generation Type Selection */}
-             <div className="flex items-center gap-3"> {/* Increased gap */}
-               <Label htmlFor="gesture-type-select" className="text-sm font-medium">Generate Data For:</Label> {/* Added font-medium */}
-                <Select
-                  value={generationType}
-                  onValueChange={(value) => setGenerationType(value as GestureGenerationType)}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger id="gesture-type-select" className="w-[180px]"> {/* Wider select */}
-                    <SelectValue placeholder="Select Gesture Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="random">Random Gesture</SelectItem>
-                    <SelectItem value="up">Up Motion</SelectItem>
-                    <SelectItem value="down">Down Motion</SelectItem>
-                    <SelectItem value="left">Left Motion</SelectItem>
-                    <SelectItem value="right">Right Motion</SelectItem>
-                    <SelectItem value="unknown">Unknown (Noise)</SelectItem>
-                  </SelectContent>
-                </Select>
-             </div>
+      <div className="container mx-auto px-4 py-10 relative z-10 max-w-6xl"> {/* Increased max-width */}
+        <header className="mb-10 text-center">
+          <Activity className="mx-auto h-12 w-12 text-primary mb-3" /> {/* Added icon */}
+          <h1 className="text-5xl font-extrabold text-primary mb-3 tracking-tight">GestureSim</h1> {/* Bolder, larger heading */}
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Visualize Edge AI: Simulate gesture recognition using ARM Assembly logic on virtual sensor data.
+          </p>
+          <a href="https://github.com/FirebaseExtended/studio-examples/tree/main/gesture-sim" target="_blank" rel="noopener noreferrer" className="inline-flex items-center mt-4 text-sm text-accent hover:text-accent/80 transition-colors">
+            <Github className="w-4 h-4 mr-1.5" /> View Source on GitHub
+          </a>
+        </header>
 
-            {/* Simulation Button */}
-            <Button onClick={handleRunSimulation} disabled={isLoading} size="lg" className="w-full sm:w-auto shadow-sm"> {/* Larger button, add shadow */}
-              <Play className="w-5 h-5 mr-2" /> {/* Add icon */}
-              {isLoading ? 'Simulating...' : 'Run Simulation'}
-            </Button>
-          </CardContent>
-         </Card>
+        <main className="space-y-10"> {/* Increased spacing */}
+          <Card className="shadow-lg backdrop-blur-sm bg-card/90 border border-border/50"> {/* Enhanced card style */}
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                 <Cpu className="w-6 h-6 text-primary/80" /> Simulation Control
+              </CardTitle>
+              <CardDescription>Configure data generation and initiate the simulation.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col sm:flex-row items-center justify-center gap-8 p-6"> {/* Increased gap, padding */}
+              <div className="flex items-center gap-4"> {/* Increased gap */}
+                <Label htmlFor="gesture-type-select" className="text-base font-medium shrink-0">Generate Data For:</Label>
+                  <Select
+                    value={generationType}
+                    onValueChange={(value) => setGenerationType(value as GestureGenerationType)}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger id="gesture-type-select" className="w-[200px] bg-background shadow-inner"> {/* Wider select, bg */}
+                      <SelectValue placeholder="Select Gesture Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="random">Random Gesture</SelectItem>
+                      <SelectItem value="up">Up Motion</SelectItem>
+                      <SelectItem value="down">Down Motion</SelectItem>
+                      <SelectItem value="left">Left Motion</SelectItem>
+                      <SelectItem value="right">Right Motion</SelectItem>
+                      <SelectItem value="unknown">Unknown (Noise)</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
 
-        {/* Separator for visual distinction */}
-         <Separator className="my-8" />
+              <Button
+                onClick={handleRunSimulation}
+                disabled={isLoading}
+                size="lg"
+                className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow bg-accent hover:bg-accent/90 text-accent-foreground" // Use accent color
+              >
+                <Play className="w-5 h-5 mr-2 animate-pulse" /> {/* Added animation */}
+                {isLoading ? 'Simulating...' : 'Run Simulation'}
+              </Button>
+            </CardContent>
+          </Card>
 
-        {/* Pass the current inputData and simulationResult */}
-        <SimulationOutput
-          inputData={inputData}
-          assemblyCode={exampleAssemblyCode}
-          simulationResult={simulationResult}
-          isLoading={isLoading}
-        />
-      </main>
+          <Separator className="my-10 bg-border/50" />
 
-      <footer className="mt-16 pt-8 border-t text-center text-sm text-muted-foreground"> {/* Increased margin */}
-        <p>This is a conceptual simulation. Actual ARM execution requires a proper emulator (e.g., QEMU, Keil µVision) and toolchain.</p>
-        <p>&copy; {new Date().getFullYear()} GestureSim Project. Built with Next.js and Shadcn/ui.</p>
-      </footer>
+          <SimulationOutput
+            inputData={inputData}
+            assemblyCode={exampleAssemblyCode}
+            simulationResult={simulationResult}
+            isLoading={isLoading}
+          />
+        </main>
+
+        <footer className="mt-20 pt-8 border-t border-border/50 text-center text-sm text-muted-foreground"> {/* Increased margin */}
+          <p>Conceptual simulation. Real ARM execution needs an emulator (QEMU, Keil) & toolchain.</p>
+          <p>&copy; {new Date().getFullYear()} GestureSim. Built with Next.js, Shadcn/ui, and Tailwind CSS.</p>
+        </footer>
+      </div>
     </div>
   );
 }
