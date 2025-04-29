@@ -9,78 +9,82 @@ body {
 @layer base {
   :root {
     /* Light Theme Colors - Dark Gray (#333), Light Gray (#f0f0f0), Teal (#008080) */
-    --background: 0 0% 94%; /* Light Gray */
-    --foreground: 0 0% 20%; /* Dark Gray */
+    --background: 0 0% 94%; /* Light Gray (#f0f0f0) */
+    --foreground: 0 0% 20%; /* Dark Gray (#333333) */
 
-    --card: 0 0% 94%; /* Light Gray */
+    --card: 0 0% 100%; /* White for cards to contrast slightly with light gray bg */
     --card-foreground: 0 0% 20%; /* Dark Gray */
 
-    --popover: 0 0% 94%; /* Light Gray */
+    --popover: 0 0% 100%; /* White popovers */
     --popover-foreground: 0 0% 20%; /* Dark Gray */
 
     --primary: 0 0% 20%; /* Dark Gray */
-    --primary-foreground: 0 0% 94%; /* Light Gray */
+    --primary-foreground: 0 0% 98%; /* Very Light Gray / Almost White for contrast on Dark Gray */
 
-    --secondary: 0 0% 85%; /* Slightly darker gray for secondary elements */
-    --secondary-foreground: 0 0% 20%; /* Dark Gray */
+    --secondary: 0 0% 96%; /* Slightly off-white secondary background */
+    --secondary-foreground: 0 0% 9%; /* Darker Gray for secondary text */
 
-    --muted: 0 0% 85%; /* Muted background */
-    --muted-foreground: 0 0% 40%; /* Muted text */
+    --muted: 0 0% 90%; /* Muted background - slightly darker light gray */
+    --muted-foreground: 0 0% 45.1%; /* Muted text - mid gray */
 
-    --accent: 180 100% 25%; /* Teal */
+    --accent: 180 100% 25%; /* Teal (#008080) */
     --accent-foreground: 0 0% 98%; /* White/Very Light Gray for contrast on Teal */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 80%; /* Slightly darker gray for borders */
-    --input: 0 0% 80%; /* Input border */
+    --border: 0 0% 89.8%; /* Lighter border */
+    --input: 0 0% 89.8%; /* Input border */
     --ring: 180 100% 25%; /* Teal for focus rings */
 
     --radius: 0.5rem;
 
+    /* Chart colors based on theme */
     --chart-1: 180 100% 25%; /* Teal */
-    --chart-2: 0 0% 40%; /* Medium Gray */
-    --chart-3: 0 0% 60%; /* Lighter Gray */
+    --chart-2: 0 0% 40%;    /* Medium Gray */
+    --chart-3: 0 0% 60%;    /* Lighter Gray */
     --chart-4: 180 50% 45%; /* Lighter Teal */
-    --chart-5: 0 0% 70%; /* Very Light Gray */
+    --chart-5: 0 0% 75%;    /* Light Gray */
   }
 
   .dark {
-    /* Dark Theme Colors - Inverted for potential dark mode */
-    --background: 0 0% 15%; /* Dark Gray */
-    --foreground: 0 0% 94%; /* Light Gray */
+    /* Dark Theme Colors - Adjusted for better contrast */
+    --background: 0 0% 10%; /* Very Dark Gray */
+    --foreground: 0 0% 95%; /* Near White */
 
-    --card: 0 0% 15%; /* Dark Gray */
-    --card-foreground: 0 0% 94%; /* Light Gray */
+    --card: 0 0% 15%; /* Slightly lighter dark gray for cards */
+    --card-foreground: 0 0% 95%; /* Near White */
 
-    --popover: 0 0% 15%; /* Dark Gray */
-    --popover-foreground: 0 0% 94%; /* Light Gray */
+    --popover: 0 0% 10%; /* Very Dark Gray */
+    --popover-foreground: 0 0% 95%; /* Near White */
 
-    --primary: 0 0% 94%; /* Light Gray */
-    --primary-foreground: 0 0% 15%; /* Dark Gray */
+    --primary: 0 0% 90%; /* Lighter Gray for primary elements */
+    --primary-foreground: 0 0% 10%; /* Very Dark Gray for contrast */
 
-    --secondary: 0 0% 25%; /* Slightly lighter dark gray */
-    --secondary-foreground: 0 0% 94%; /* Light Gray */
+    --secondary: 0 0% 20%; /* Dark Gray for secondary elements */
+    --secondary-foreground: 0 0% 90%; /* Lighter Gray */
 
-    --muted: 0 0% 25%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 25%; /* Muted background */
+    --muted-foreground: 0 0% 60%; /* Muted text */
 
     --accent: 180 80% 45%; /* Brighter Teal for dark mode */
     --accent-foreground: 0 0% 10%; /* Dark for contrast on Teal */
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 72.2% 50.6%; /* Adjusted destructive */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 30%;
-    --input: 0 0% 30%;
+    --border: 0 0% 25%; /* Darker border */
+    --input: 0 0% 25%; /* Input border */
     --ring: 180 80% 45%; /* Brighter Teal */
 
+    --radius: 0.5rem;
+
+    /* Chart colors for dark mode */
     --chart-1: 180 80% 45%; /* Brighter Teal */
-    --chart-2: 0 0% 70%; /* Light Gray */
-    --chart-3: 0 0% 50%; /* Medium Gray */
+    --chart-2: 0 0% 70%;    /* Light Gray */
+    --chart-3: 0 0% 50%;    /* Medium Gray */
     --chart-4: 180 40% 65%; /* Lighter Teal */
-    --chart-5: 0 0% 80%; /* Very Light Gray */
+    --chart-5: 0 0% 80%;    /* Very Light Gray */
   }
 }
 
@@ -95,10 +99,16 @@ body {
 
 /* Style for code blocks */
 pre {
-  @apply bg-muted p-4 rounded-md overflow-x-auto text-sm text-muted-foreground;
+  @apply bg-muted p-4 rounded-md overflow-x-auto text-sm; /* Removed specific text color */
   font-family: var(--font-geist-mono);
 }
 
-code {
+code:not(pre > code) {
+   /* Inline code style - subtle background */
+   @apply bg-muted px-1 py-0.5 rounded text-sm;
    font-family: var(--font-geist-mono);
+}
+
+pre > code {
+  @apply text-muted-foreground; /* Ensure code within pre has muted color */
 }

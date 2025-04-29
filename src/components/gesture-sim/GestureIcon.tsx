@@ -6,7 +6,9 @@ interface GestureIconProps extends React.SVGProps<SVGSVGElement> {
   gesture: Gesture;
 }
 
-// Basic SVG arrow icons (remain the same)
+const strokeWidth = "2.2"; // Slightly thicker stroke
+
+// Basic SVG arrow icons with adjusted stroke width
 const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
   up: (props) => (
     <svg
@@ -14,7 +16,7 @@ const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
@@ -28,7 +30,7 @@ const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
@@ -42,7 +44,7 @@ const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
@@ -56,7 +58,7 @@ const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
@@ -64,13 +66,13 @@ const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
       <path d="M5 12h14M12 5l7 7-7 7" />
     </svg>
   ),
-    unknown: (props) => (
+  unknown: (props) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
@@ -80,7 +82,6 @@ const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
       <line x1="12" x2="12.01" y1="16" y2="16" />
     </svg>
   ),
-  // 'shake' icon removed as gesture type was removed
 };
 
 export const GestureIcon: React.FC<GestureIconProps> = ({ gesture, className = 'w-6 h-6', ...props }) => {
