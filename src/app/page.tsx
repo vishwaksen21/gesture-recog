@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { SimulationOutput } from '@/components/gesture-sim/SimulationOutput';
@@ -104,17 +105,26 @@ function generateRandomSensorData(): SensorReading {
   // Else: remains noisy/near zero -> unknown
 
   return {
-    accel_x: x,
-    accel_y: y,
-    accel_z: z,
+    accel_x: parseFloat(x.toFixed(3)), // Keep precision consistent
+    accel_y: parseFloat(y.toFixed(3)),
+    accel_z: parseFloat(z.toFixed(3)),
   };
 }
 
+// Default state to ensure server and initial client render match
+const defaultSensorReading: SensorReading = { accel_x: 0, accel_y: 0, accel_z: 0 };
 
 export default function Home() {
-  const [inputData, setInputData] = useState<SensorReading>(generateRandomSensorData());
+  const [inputData, setInputData] = useState<SensorReading>(defaultSensorReading);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState(false); // Track mount state
+
+  useEffect(() => {
+    setIsMounted(true);
+    // Generate the first random data set only on the client after mount
+    setInputData(generateRandomSensorData());
+  }, []); // Empty dependency array ensures this runs only once after mount
 
   const handleRunSimulation = () => {
     setIsLoading(true);
@@ -132,6 +142,9 @@ export default function Home() {
     }, 1500); // Simulate 1.5 seconds delay
   };
 
+  // Prevent rendering potentially mismatched data during hydration
+  const displayInputData = isMounted ? inputData : defaultSensorReading;
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <header className="mb-8 text-center">
@@ -146,16 +159,16 @@ export default function Home() {
 
       <main className="space-y-6">
          <div className="text-center mb-6">
-          <Button onClick={handleRunSimulation} disabled={isLoading}>
-            {isLoading ? 'Simulating...' : 'Generate Data & Run Simulation'}
+          <Button onClick={handleRunSimulation} disabled={isLoading || !isMounted}>
+            {isLoading ? 'Simulating...' : (isMounted ? 'Generate Data & Run Simulation' : 'Loading...')}
           </Button>
         </div>
 
         <SimulationOutput
-          inputData={inputData}
+          inputData={displayInputData}
           assemblyCode={exampleAssemblyCode}
           simulationResult={simulationResult}
-          isLoading={isLoading}
+          isLoading={isLoading || !isMounted} // Show loading until mounted and first data generated
         />
       </main>
 
