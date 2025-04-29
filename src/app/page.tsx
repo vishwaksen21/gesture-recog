@@ -2,11 +2,19 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { SimulationOutput } from '@/components/gesture-sim/SimulationOutput';
 import { Github } from 'lucide-react';
-import type { SimulationResult, SensorReading } from '@/types/simulation';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { SimulationResult, SensorReading, Gesture } from '@/types/simulation';
 
 // --- Simulation Logic (Placeholder) ---
 
@@ -24,7 +32,7 @@ function runSimulatedInference(data: SensorReading): SimulationResult {
   const cycles = Math.floor(Math.random() * 1500) + 500; // Random cycles (500-2000)
   const memory = Math.floor(Math.random() * 100) + 100;   // Random memory (100-200 bytes)
 
-  let recognizedGesture: SimulationResult['recognizedGesture'] = 'unknown';
+  let recognizedGesture: Gesture = 'unknown';
 
   // Check Y-axis dominance for Up/Down
   if (absY > absX * dominanceFactor && absY > absZ * dominanceFactor && absY > threshold) {
@@ -117,32 +125,58 @@ EndCheck:
 `;
 
 
-// Generate random sensor data with clearer gesture patterns
-function generateRandomSensorData(): SensorReading {
-  const gestureType = Math.random();
-  let x = (Math.random() - 0.5) * 0.3; // Base noise reduced
+// Generate sensor data based on selected type
+type GestureGenerationType = 'random' | Gesture;
+
+function generateSensorData(type: GestureGenerationType): SensorReading {
+  let x = (Math.random() - 0.5) * 0.3; // Base noise
   let y = (Math.random() - 0.5) * 0.3;
   let z = (Math.random() - 0.5) * 0.3;
   const magnitude = 0.8 + Math.random() * 0.5; // 0.8 to 1.3
 
-  if (gestureType < 0.2) { // Up
-    y = magnitude;
-    x *= 0.5; // Reduce non-dominant axes further
-    z *= 0.5;
-  } else if (gestureType < 0.4) { // Down
-    y = -magnitude;
-    x *= 0.5;
-    z *= 0.5;
-  } else if (gestureType < 0.6) { // Right
-    x = magnitude;
-    y *= 0.5;
-    z *= 0.5;
-  } else if (gestureType < 0.8) { // Left
-    x = -magnitude;
-    y *= 0.5;
-    z *= 0.5;
+  switch (type) {
+    case 'up':
+      y = magnitude;
+      x *= 0.3; // Reduce non-dominant axes
+      z *= 0.3;
+      break;
+    case 'down':
+      y = -magnitude;
+      x *= 0.3;
+      z *= 0.3;
+      break;
+    case 'left':
+      x = -magnitude;
+      y *= 0.3;
+      z *= 0.3;
+      break;
+    case 'right':
+      x = magnitude;
+      y *= 0.3;
+      z *= 0.3;
+      break;
+    case 'unknown': // Generate data likely to be classified as unknown
+      // Keep moderate noise on all axes, avoid clear dominance
+       x = (Math.random() - 0.5) * 0.6;
+       y = (Math.random() - 0.5) * 0.6;
+       z = (Math.random() - 0.5) * 0.6;
+      break;
+    case 'random':
+    default:
+      // Use existing random generation logic but ensure some variance
+       const gestureType = Math.random();
+       if (gestureType < 0.2) { // More pronounced up
+           y = magnitude; x *= 0.5; z *= 0.5;
+        } else if (gestureType < 0.4) { // More pronounced down
+            y = -magnitude; x *= 0.5; z *= 0.5;
+        } else if (gestureType < 0.6) { // More pronounced right
+            x = magnitude; y *= 0.5; z *= 0.5;
+        } else if (gestureType < 0.8) { // More pronounced left
+            x = -magnitude; y *= 0.5; z *= 0.5;
+        }
+      // ~20% remain as less clear noise
+      break;
   }
-  // Else: ~20% chance of noisy/less clear data -> likely 'unknown'
 
   return {
     accel_x: parseFloat(x.toFixed(3)),
@@ -159,32 +193,38 @@ export default function Home() {
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState(false); // Track mount state
+  const [generationType, setGenerationType] = useState<GestureGenerationType>('random');
+
+  // Generate initial data on client mount
+  const generateInitialData = useCallback(() => {
+      setInputData(generateSensorData(generationType));
+  }, [generationType]); // Regenerate if type changes before first run
 
   useEffect(() => {
     setIsMounted(true);
-    // Generate the first random data set only on the client after mount
-    // to prevent hydration mismatch if Math.random was used in default state.
-    setInputData(generateRandomSensorData());
-  }, []); // Empty dependency array ensures this runs only once after mount
+    generateInitialData();
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
+
 
   const handleRunSimulation = () => {
     setIsLoading(true);
     setSimulationResult(null); // Clear previous result
 
-    // Generate new data for this run
-    const newData = generateRandomSensorData();
+    // Generate new data based on the selected type for this run
+    const newData = generateSensorData(generationType);
     setInputData(newData);
 
-    // Simulate asynchronous operation (like calling an external simulator)
+    // Simulate asynchronous operation
     setTimeout(() => {
       const result = runSimulatedInference(newData);
       setSimulationResult(result);
       setIsLoading(false);
-    }, 1200); // Simulate 1.2 seconds delay (slightly reduced)
+    }, 500); // Reduced delay for quicker feedback
   };
 
   // Render default static data until mounted, then use the client-generated data
-  const displayInputData = isMounted ? inputData : defaultSensorReading;
+   const displayInputData = isMounted ? inputData : defaultSensorReading;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -199,18 +239,40 @@ export default function Home() {
       </header>
 
       <main className="space-y-6">
-         <div className="text-center mb-6">
-          {/* Disable button until component is mounted to prevent hydration issues */}
-          <Button onClick={handleRunSimulation} disabled={isLoading || !isMounted}>
-            {isLoading ? 'Simulating...' : (isMounted ? 'Generate Data & Run Simulation' : 'Loading...')}
+         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+           {/* Data Generation Type Selection */}
+           <div className="flex items-center gap-2">
+             <Label htmlFor="gesture-type-select" className="text-sm">Generate Data For:</Label>
+              <Select
+                value={generationType}
+                onValueChange={(value) => setGenerationType(value as GestureGenerationType)}
+                disabled={isLoading || !isMounted}
+              >
+                <SelectTrigger id="gesture-type-select" className="w-[150px]">
+                  <SelectValue placeholder="Select Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="random">Random</SelectItem>
+                  <SelectItem value="up">Up</SelectItem>
+                  <SelectItem value="down">Down</SelectItem>
+                  <SelectItem value="left">Left</SelectItem>
+                  <SelectItem value="right">Right</SelectItem>
+                  <SelectItem value="unknown">Unknown (Noise)</SelectItem>
+                </SelectContent>
+              </Select>
+           </div>
+
+          {/* Simulation Button */}
+          <Button onClick={handleRunSimulation} disabled={isLoading || !isMounted} className="w-full sm:w-auto">
+            {isLoading ? 'Simulating...' : (isMounted ? 'Generate & Simulate' : 'Loading...')}
           </Button>
         </div>
 
         <SimulationOutput
-          inputData={displayInputData} // Use data appropriate for the render phase
+          inputData={displayInputData}
           assemblyCode={exampleAssemblyCode}
           simulationResult={simulationResult}
-          isLoading={isLoading || !isMounted} // Show loading until mounted and first data generated
+          isLoading={isLoading} // isLoading handles both mount and simulation phases now
         />
       </main>
 
