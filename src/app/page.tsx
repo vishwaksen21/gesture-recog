@@ -2,7 +2,7 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { SimulationOutput } from '@/components/gesture-sim/SimulationOutput';
 import { Github } from 'lucide-react';
@@ -43,12 +43,9 @@ function runSimulatedInference(data: SensorReading): SimulationResult {
      recognizedGesture = accel_x > 0 ? 'right' : 'left';
   }
    // Basic check for a potential shake (high Z or general high magnitude without clear dominance)
-   // This is very simplistic for demonstration
   else if (absZ > threshold * 1.2 || (absX + absY + absZ > threshold * 2.5)) {
-       // Let's add a 'shake' gesture for variety, though not in the original request.
-       // If sticking strictly to original, this would remain 'unknown'.
-       // recognizedGesture = 'shake'; // Or keep as 'unknown'
-       recognizedGesture = 'unknown'; // Keep as unknown to match original specified gestures
+       // Keep as unknown to match original specified gestures
+       recognizedGesture = 'unknown';
   }
 
 
@@ -185,46 +182,34 @@ function generateSensorData(type: GestureGenerationType): SensorReading {
   };
 }
 
-// Default static state to ensure server and initial client render match
+// Default static state for initial render, consistent between server and client
 const defaultSensorReading: SensorReading = { accel_x: 0, accel_y: 0, accel_z: 0 };
 
 export default function Home() {
   const [inputData, setInputData] = useState<SensorReading>(defaultSensorReading);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isMounted, setIsMounted] = useState(false); // Track mount state
   const [generationType, setGenerationType] = useState<GestureGenerationType>('random');
 
-  // Generate initial data on client mount
-  const generateInitialData = useCallback(() => {
-      setInputData(generateSensorData(generationType));
-  }, [generationType]); // Regenerate if type changes before first run
 
-  useEffect(() => {
-    setIsMounted(true);
-    generateInitialData();
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
-
-
-  const handleRunSimulation = () => {
+  const handleRunSimulation = useCallback(() => {
     setIsLoading(true);
-    setSimulationResult(null); // Clear previous result
+    setSimulationResult(null); // Clear previous result immediately
 
-    // Generate new data based on the selected type for this run
+    // Generate new data based on the selected type *before* simulation
     const newData = generateSensorData(generationType);
-    setInputData(newData);
+    setInputData(newData); // Update input data state *after* generation
 
-    // Simulate asynchronous operation
+    // Simulate asynchronous operation (e.g., calling the actual inference engine)
+    // Using setTimeout for demonstration
     setTimeout(() => {
+      // Run inference with the *newly generated* data
       const result = runSimulatedInference(newData);
       setSimulationResult(result);
       setIsLoading(false);
-    }, 500); // Reduced delay for quicker feedback
-  };
+    }, 300); // Short delay for visual feedback
+  }, [generationType]); // Depend on generationType
 
-  // Render default static data until mounted, then use the client-generated data
-   const displayInputData = isMounted ? inputData : defaultSensorReading;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -246,7 +231,7 @@ export default function Home() {
               <Select
                 value={generationType}
                 onValueChange={(value) => setGenerationType(value as GestureGenerationType)}
-                disabled={isLoading || !isMounted}
+                disabled={isLoading} // Only disable during simulation
               >
                 <SelectTrigger id="gesture-type-select" className="w-[150px]">
                   <SelectValue placeholder="Select Type" />
@@ -263,16 +248,17 @@ export default function Home() {
            </div>
 
           {/* Simulation Button */}
-          <Button onClick={handleRunSimulation} disabled={isLoading || !isMounted} className="w-full sm:w-auto">
-            {isLoading ? 'Simulating...' : (isMounted ? 'Generate & Simulate' : 'Loading...')}
+          <Button onClick={handleRunSimulation} disabled={isLoading} className="w-full sm:w-auto">
+            {isLoading ? 'Simulating...' : 'Generate & Simulate'}
           </Button>
         </div>
 
+        {/* Pass the current inputData and simulationResult */}
         <SimulationOutput
-          inputData={displayInputData}
+          inputData={inputData}
           assemblyCode={exampleAssemblyCode}
           simulationResult={simulationResult}
-          isLoading={isLoading} // isLoading handles both mount and simulation phases now
+          isLoading={isLoading}
         />
       </main>
 

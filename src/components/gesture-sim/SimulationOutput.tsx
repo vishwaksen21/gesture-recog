@@ -14,14 +14,22 @@ interface SimulationOutputProps {
   isLoading: boolean;
 }
 
+// Helper to format numbers consistently
+const formatAxis = (value: number | undefined): string => {
+  // Handle potential undefined during initial render or if data is missing
+  if (value === undefined || value === null) {
+    return '0.000'; // Default to zero representation
+  }
+  return value.toFixed(3);
+};
+
+
 export const SimulationOutput: React.FC<SimulationOutputProps> = ({
   inputData,
   assemblyCode,
   simulationResult,
   isLoading,
 }) => {
-  // Format numbers consistently
-  const formatAxis = (value: number) => value.toFixed(3);
 
   return (
     <div className="space-y-6">
@@ -35,18 +43,18 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-sm text-muted-foreground">X-Axis</p>
-              {/* Ensure consistent display format */}
-              <p className="font-mono text-lg">{formatAxis(inputData.accel_x)}</p>
+              {/* Display formatted input data */}
+              <p className="font-mono text-lg">{formatAxis(inputData?.accel_x)}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Y-Axis</p>
-              {/* Ensure consistent display format */}
-              <p className="font-mono text-lg">{formatAxis(inputData.accel_y)}</p>
+               {/* Display formatted input data */}
+              <p className="font-mono text-lg">{formatAxis(inputData?.accel_y)}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Z-Axis</p>
-              {/* Ensure consistent display format */}
-              <p className="font-mono text-lg">{formatAxis(inputData.accel_z)}</p>
+               {/* Display formatted input data */}
+              <p className="font-mono text-lg">{formatAxis(inputData?.accel_z)}</p>
             </div>
           </div>
         </CardContent>
@@ -78,7 +86,7 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <p className="ml-3 text-muted-foreground">Generating data and simulating...</p>
+              <p className="ml-3 text-muted-foreground">Simulating...</p>
             </div>
           ) : simulationResult ? (
             <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-8 py-4">
@@ -101,7 +109,7 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
               </div>
             </div>
           ) : (
-             <p className="text-center text-muted-foreground py-8">Select data type and click "Generate &amp; Simulate" to start.</p>
+             <p className="text-center text-muted-foreground py-8">Select data type and click "Generate &amp; Simulate" to view results.</p>
           )}
         </CardContent>
       </Card>
