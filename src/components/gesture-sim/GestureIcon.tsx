@@ -1,12 +1,12 @@
-import type React from 'react';
 
-type Gesture = 'up' | 'down' | 'left' | 'right' | 'unknown';
+import type React from 'react';
+import type { Gesture } from '@/types/simulation'; // Import Gesture type
 
 interface GestureIconProps extends React.SVGProps<SVGSVGElement> {
   gesture: Gesture;
 }
 
-// Basic SVG arrow icons
+// Basic SVG arrow icons (remain the same)
 const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
   up: (props) => (
     <svg
@@ -80,6 +80,7 @@ const icons: Record<Gesture, React.FC<React.SVGProps<SVGSVGElement>>> = {
       <line x1="12" x2="12.01" y1="16" y2="16" />
     </svg>
   ),
+  // 'shake' icon removed as gesture type was removed
 };
 
 export const GestureIcon: React.FC<GestureIconProps> = ({ gesture, className = 'w-6 h-6', ...props }) => {

@@ -5,25 +5,12 @@ import type React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { GestureIcon } from './GestureIcon';
 import { Badge } from '@/components/ui/badge';
-
-// Define the structure for simulated sensor data
-interface SensorReading {
-  accel_x: number;
-  accel_y: number;
-  accel_z: number;
-}
-
-// Define the structure for the simulation result
-interface SimulationResult {
-  recognizedGesture: 'up' | 'down' | 'left' | 'right' | 'unknown';
-  executionCycles?: number; // Optional metrics
-  memoryUsage?: number; // Optional metrics (e.g., in bytes)
-}
+import type { SimulationResult, SensorReading } from '@/types/simulation';
 
 interface SimulationOutputProps {
-  inputData: SensorReading; // Ensure this is always provided
+  inputData: SensorReading; // Use imported type
   assemblyCode: string;
-  simulationResult: SimulationResult | null; // Can be null initially
+  simulationResult: SimulationResult | null; // Use imported type
   isLoading: boolean;
 }
 
@@ -42,7 +29,7 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
       <Card>
         <CardHeader>
           <CardTitle>Simulated Sensor Input</CardTitle>
-          <CardDescription>3-axis accelerometer readings.</CardDescription>
+          <CardDescription>3-axis accelerometer readings (g).</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4 text-center">
@@ -68,11 +55,13 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
       {/* Assembly Code Section */}
       <Card>
         <CardHeader>
-          <CardTitle>ARM Assembly Inference Logic</CardTitle>
+          <CardTitle>ARM Assembly Inference Logic (Conceptual)</CardTitle>
            <CardDescription>Simplified representation of the inference code.</CardDescription>
         </CardHeader>
         <CardContent>
-          <pre><code>{assemblyCode}</code></pre>
+          <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm text-muted-foreground">
+            <code>{assemblyCode}</code>
+          </pre>
         </CardContent>
       </Card>
 
@@ -92,7 +81,7 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
               <p className="ml-3 text-muted-foreground">Running simulation...</p>
             </div>
           ) : simulationResult ? (
-            <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-8">
+            <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-8 py-4">
               <div className="flex-shrink-0 p-4 bg-background rounded-full shadow-inner">
                  <GestureIcon gesture={simulationResult.recognizedGesture} className="w-16 h-16 text-accent" />
               </div>
@@ -103,20 +92,19 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
                 </p>
                 <div className="mt-3 space-x-2">
                    {simulationResult.executionCycles !== undefined && (
-                     <Badge variant="outline">Cycles: {simulationResult.executionCycles}</Badge>
+                     <Badge variant="outline">Cycles: ~{simulationResult.executionCycles}</Badge>
                    )}
                    {simulationResult.memoryUsage !== undefined && (
-                      <Badge variant="outline">Memory: {simulationResult.memoryUsage} B</Badge>
+                      <Badge variant="outline">Memory: ~{simulationResult.memoryUsage} B</Badge>
                    )}
                 </div>
               </div>
             </div>
           ) : (
-             <p className="text-center text-muted-foreground py-8">Click "Run Simulation" to see the results.</p>
+             <p className="text-center text-muted-foreground py-8">Click "Generate Data &amp; Run Simulation" to start.</p>
           )}
         </CardContent>
       </Card>
     </div>
   );
 };
-
