@@ -1,4 +1,3 @@
-
 # GestureSim
 
 Simulate and visualize ARM Assembly-based gesture recognition on virtual sensor data using Next.js and Shadcn UI.
@@ -36,7 +35,7 @@ This project is configured for deployment to Firebase Hosting using its Web Fram
 1.  **Create a Firebase Project:** If you don't have one already, create a project in the [Firebase Console](https://console.firebase.google.com/).
 2.  **Configure Project ID:**
     *   Open the `.firebaserc` file in the project root.
-    *   Replace `"your-firebase-project-id"` with your actual Firebase Project ID.
+    *   Replace `"your-firebase-project-id"` with your actual Firebase Project ID. You can find this in your Firebase Project Settings -> General tab.
 3.  **Build the Project:**
     ```bash
     npm run build
@@ -47,14 +46,9 @@ This project is configured for deployment to Firebase Hosting using its Web Fram
     ```
 4.  **Deploy:**
     ```bash
-    npm run deploy
-    # or
-    yarn deploy
-    # or
-    pnpm deploy
+    firebase deploy --only hosting
     ```
-
-    This command will use the `firebase deploy --only hosting` script defined in `package.json`. The Firebase CLI will detect the Next.js framework, build the necessary Cloud Function (if needed for SSR/API routes), and deploy the static assets and function to Firebase Hosting.
+    This command uses the configuration in `firebase.json`. The Firebase CLI detects Next.js, builds necessary cloud functions, and deploys static assets and functions to Firebase Hosting.
 
 5.  **Visit Your Site:** Once deployment is complete, the Firebase CLI will output the URL of your deployed application.
 

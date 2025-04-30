@@ -82,13 +82,41 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+        'fade-in': { // Added fade-in animation
+          'from': { opacity: '0', transform: 'translateY(10px)' },
+          'to': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'bounce': { // Added bounce animation
+           '0%, 100%': { transform: 'translateY(-15%)', 'animation-timing-function': 'cubic-bezier(0.8,0,1,1)' },
+           '50%': { transform: 'translateY(0)', 'animation-timing-function': 'cubic-bezier(0,0,0.2,1)' },
+         },
+         'spin': { // Added spin animation
+            'from': { transform: 'rotate(0deg)' },
+            'to': { transform: 'rotate(360deg)' },
+          },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+        'fade-in': 'fade-in 0.5s ease-out forwards', // Added fade-in animation utility
+        'bounce': 'bounce 1s infinite', // Added bounce animation utility
+        'spin': 'spin 1s linear infinite', // Added spin animation utility
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require('@tailwindcss/typography'), // Optional: If you need typography styles
+     // Added custom patterns plugin
+    function ({ addUtilities, theme }: { addUtilities: Function, theme: Function}) {
+        const patterns = {
+          '.pattern': {
+            'background-size': '40px 40px',
+          },
+        }
+        addUtilities(patterns)
+    }
+  ],
 } satisfies Config;
+

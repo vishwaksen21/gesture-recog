@@ -146,11 +146,13 @@ function generateSensorData(type: GestureGenerationType): SensorReading {
        z = (Math.random() - 0.5) * 0.4; break;
     case 'random':
     default:
-       const gestureType = Math.random();
-       if (gestureType < 0.2) { y = magnitude; x *= 0.4; z *= 0.4; }
-       else if (gestureType < 0.4) { y = -magnitude; x *= 0.4; z *= 0.4; }
-       else if (gestureType < 0.6) { x = magnitude; y *= 0.4; z *= 0.4; }
-       else if (gestureType < 0.8) { x = -magnitude; y *= 0.4; z *= 0.4; }
+       // Ensure initial values are also random but controlled for SSR consistency
+       // Use a predictable randomization source if possible or fix initial state
+       const seed = 0.5; // Example fixed seed for initial random generation
+       let seededRandom = Math.sin(seed) * 10000; seededRandom -= Math.floor(seededRandom);
+       x = (seededRandom - 0.5) * 0.3; seededRandom = Math.sin(seededRandom) * 10000; seededRandom -= Math.floor(seededRandom);
+       y = (seededRandom - 0.5) * 0.3; seededRandom = Math.sin(seededRandom) * 10000; seededRandom -= Math.floor(seededRandom);
+       z = (seededRandom - 0.5) * 0.3; seededRandom = Math.sin(seededRandom) * 10000; seededRandom -= Math.floor(seededRandom);
       break;
   }
 
@@ -162,7 +164,7 @@ function generateSensorData(type: GestureGenerationType): SensorReading {
 }
 
 // Use a non-random default state for initial render to avoid hydration mismatch
-const defaultSensorReading: SensorReading = { accel_x: 0.123, accel_y: -0.456, accel_z: 0.789 };
+const defaultSensorReading: SensorReading = generateSensorData('random'); // Use generator with fixed seed
 
 export default function Home() {
   const [inputData, setInputData] = useState<SensorReading>(defaultSensorReading);
@@ -175,7 +177,38 @@ export default function Home() {
     setIsLoading(true);
     setSimulationResult(null);
 
-    const newData = generateSensorData(generationType);
+    // Use a truly random generator on client-side interaction
+    const generateClientSideData = (type: GestureGenerationType): SensorReading => {
+        let x = (Math.random() - 0.5) * 0.3;
+        let y = (Math.random() - 0.5) * 0.3;
+        let z = (Math.random() - 0.5) * 0.3;
+        const magnitude = 0.8 + Math.random() * 0.5;
+
+        switch (type) {
+            case 'up': y = magnitude; x *= 0.3; z *= 0.3; break;
+            case 'down': y = -magnitude; x *= 0.3; z *= 0.3; break;
+            case 'left': x = -magnitude; y *= 0.3; z *= 0.3; break;
+            case 'right': x = magnitude; y *= 0.3; z *= 0.3; break;
+            case 'unknown': x = (Math.random() - 0.5) * 0.4; y = (Math.random() - 0.5) * 0.4; z = (Math.random() - 0.5) * 0.4; break;
+            case 'random':
+            default:
+                const gestureType = Math.random();
+                if (gestureType < 0.2) { y = magnitude; x *= 0.4; z *= 0.4; }
+                else if (gestureType < 0.4) { y = -magnitude; x *= 0.4; z *= 0.4; }
+                else if (gestureType < 0.6) { x = magnitude; y *= 0.4; z *= 0.4; }
+                else if (gestureType < 0.8) { x = -magnitude; y *= 0.4; z *= 0.4; }
+                // else remain low random values
+                break;
+        }
+        return {
+            accel_x: parseFloat(x.toFixed(3)),
+            accel_y: parseFloat(y.toFixed(3)),
+            accel_z: parseFloat(z.toFixed(3)),
+        };
+    };
+
+
+    const newData = generateClientSideData(generationType);
     setInputData(newData);
 
     // Simulate async operation
@@ -241,7 +274,7 @@ export default function Home() {
                 size="lg"
                 className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow bg-accent hover:bg-accent/90 text-accent-foreground" // Use accent color
               >
-                <Play className="w-5 h-5 mr-2 animate-pulse" /> {/* Added animation */}
+                <Play className={`w-5 h-5 mr-2 ${isLoading ? 'animate-spin' : ''}`} /> {/* Conditional animation */}
                 {isLoading ? 'Simulating...' : 'Run Simulation'}
               </Button>
             </CardContent>
@@ -265,3 +298,4 @@ export default function Home() {
     </div>
   );
 }
+

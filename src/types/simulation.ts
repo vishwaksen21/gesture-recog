@@ -15,3 +15,4 @@ export interface SimulationResult {
   executionCycles?: number; // Optional metrics
   memoryUsage?: number; // Optional metrics (e.g., in bytes)
 }
+

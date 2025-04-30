@@ -32,14 +32,17 @@ export const SimulationOutput: React.FC<SimulationOutputProps> = ({
   isLoading,
 }) => {
 
+  // Guard against undefined inputData during initial render or loading states
+  const safeInputData = inputData ?? { accel_x: 0, accel_y: 0, accel_z: 0 };
+
   const renderInputData = () => (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center p-5 bg-secondary/70 rounded-lg shadow-inner backdrop-blur-sm border border-border/30">
       {/* Added outer border and shadow */}
       {(['x', 'y', 'z'] as const).map((axis) => (
           <div key={axis} className="p-3 bg-background/50 rounded-md border border-border/20 shadow-sm">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{axis.toUpperCase()}-Axis</p>
-            <p className={`font-mono text-2xl font-semibold ${inputData?.[`accel_${axis}`] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {formatAxis(inputData?.[`accel_${axis}`])} g
+            <p className={`font-mono text-2xl font-semibold ${safeInputData?.[`accel_${axis}`] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+              {formatAxis(safeInputData?.[`accel_${axis}`])} g
             </p>
           </div>
       ))}
@@ -203,10 +206,23 @@ const styles = `
   .animate-fade-in {
     animation: fade-in 0.5s ease-out forwards;
   }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(-15%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+    50% { transform: translateY(0); animation-timing-function: cubic-bezier(0,0,0.2,1); }
+  }
+  .animate-bounce {
+      animation: bounce 1s infinite;
+  }
+
 `;
 if (typeof document !== 'undefined') {
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
     styleSheet.innerText = styles;
-    document.head.appendChild(styleSheet);
+    // Avoid appending multiple times on re-renders
+    if (!document.head.querySelector('[data-animation-styles]')) {
+        styleSheet.setAttribute('data-animation-styles', 'true');
+        document.head.appendChild(styleSheet);
+    }
 }
+

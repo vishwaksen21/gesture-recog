@@ -91,3 +91,4 @@ export const GestureIcon: React.FC<GestureIconProps> = ({ gesture, className = '
   const finalClassName = `inline-block ${className}`;
   return <IconComponent className={finalClassName} {...props} />;
 };
+

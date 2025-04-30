@@ -45,6 +45,16 @@ body {
     --chart-3: 210 17% 70%; /* Medium Gray */
     --chart-4: 168 50% 60%; /* Lighter Cyan */
     --chart-5: 210 15% 80%; /* Light Gray */
+
+    /* Sidebar Colors (Light Theme) */
+    --sidebar-background: 210 20% 15%; /* Darker Blue/Gray for sidebar */
+    --sidebar-foreground: 210 20% 95%; /* Near White text on sidebar */
+    --sidebar-primary: 168 76% 42%;   /* Cyan for primary accents in sidebar */
+    --sidebar-primary-foreground: 210 29% 15%; /* Dark Blue text on Cyan */
+    --sidebar-accent: 210 17% 88%;   /* Light Gray for hover/active states */
+    --sidebar-accent-foreground: 210 29% 25%; /* Deep Blue text on Light Gray */
+    --sidebar-border: 210 20% 25%; /* Slightly lighter border for sidebar */
+    --sidebar-ring: 168 76% 42%;   /* Cyan for focus rings */
   }
 
   .dark {
@@ -85,6 +95,16 @@ body {
     --chart-3: 210 20% 50%; /* Medium Blue/Gray */
     --chart-4: 168 40% 70%; /* Lighter Cyan */
     --chart-5: 210 20% 80%; /* Very Light Gray/Blue */
+
+    /* Sidebar Colors (Dark Theme) */
+    --sidebar-background: 210 20% 8%;  /* Even darker background for sidebar */
+    --sidebar-foreground: 210 20% 85%; /* Slightly dimmer white */
+    --sidebar-primary: 168 70% 55%;   /* Brighter Cyan for primary accents */
+    --sidebar-primary-foreground: 210 29% 10%; /* Very dark blue text on Cyan */
+    --sidebar-accent: 210 20% 35%;   /* Darker gray for hover/active */
+    --sidebar-accent-foreground: 210 20% 95%; /* Near White text on Dark Gray */
+    --sidebar-border: 210 20% 20%; /* Darker border */
+    --sidebar-ring: 168 70% 55%;   /* Brighter Cyan for focus rings */
   }
 }
 
@@ -112,3 +132,4 @@ code:not(pre > code) {
 pre > code {
   @apply text-muted-foreground; /* Ensure code within pre has muted color */
 }
+
